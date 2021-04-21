@@ -134,7 +134,7 @@ class dopigo
             //dopigo billing address
             $dBillingAddress=new DopigoBillingAddress();
             $dBillingAddress->setId(!empty($item->billing_address->id) ?  $item->billing_address->id : 0);
-            $dBillingAddress->setId(!empty($item->billing_address->id) ?  $item->billing_address->id : 0);
+            $dBillingAddress->setFullAddress(!empty($item->billing_address->full_address) ?  $item->billing_address->full_address : 0);
 
         }
 
@@ -644,70 +644,7 @@ class dopigo
         return json_decode($data)->results;
     }
 
-    /**
-     * @param $arrayOfOrders array bir dizi halinde order->results parametre olarak verilmelidir ilgili veriyi veritabanına işler
-     * burada veri tabanında var olan veriyi tekrar eklemeyecek bir yapı kurulmalıdır
-     */
-    public function syncOrdersToDatabase(array $arrayOfOrders)
-    {
-        try {
-            foreach ($arrayOfOrders as $order) {
-                $prep = self::$con->prepare("insert into siparisler(user_id, teslimat_adresi, fatura_adresi, odeme_tipi, siparis_durumu, kargo_firmasi,
-                       teslimat_yetkili_id, genel_toplam, siparis_no, kart_no, eklenme_tarihi, 
-                       durumu, banka_json, ekleyen_id, guncelleyen_id, silindi,dekont) 
-values (:user_id,:teslimat_adresi,:fatura_adresi,:odeme_tipi,:siparis_durumu,:kargo_firmasi,:teslimat_yetkili_id,:genel_toplam,:siparis_no,:kart_no,:ekleme_tarihi,
-        :durumu,:banka_json,:ekleyen_id,:guncelleyen_id,:silindi,:dekont)");
-                $siparisDurumu = $order['status'];
-                if ($siparisDurumu == 'pending') {
-                    $siparisDurumu = 1;//yarım kalan
-                }
-                if ($siparisDurumu == 'waiting_shipment') {
-                    $siparisDurumu = 2;//kargo bekliyor
-                }
-                if ($siparisDurumu == 'shipped') {
-                    $siparisDurumu = 3;//kargoya verildi
-                }
-                if ($siparisDurumu == 'cancelled') {
-                    $siparisDurumu = 4;//iptal
-                }
-                if ($siparisDurumu == 'undefined') {
-                    $siparisDurumu = 4;//abi bunu sen istediğin gibi ayarla
-                }
-                if (isset($order['items']->child->children->shipment_provider)) {
-                    $shipment_provider = $order['items']->child->children->shipment_provider;
-                } else {
-                    $shipment_provider = null;
-                }
-                if (isset($order['items']->child->children->owner)) {
-                    $shipment_owner = $order['items']->child->children->owner;
-                } else {
-                    $shipment_owner = null;
-                }//sipariş sahibi
-                $prep->execute(array(
-                    ":user_id" => $order['customer']->id,
-                    ":teslimat_adresi" => $order['shipping_address']->id,
-                    ":fatura_adresi" => $order['billing_address']->id,
-                    ":odeme_tipi" => 1,
-                    ":siparis_durumu" => $siparisDurumu,
-                    ":kargo_firmasi" => $shipment_provider,//bu değer set edilmemiş olabilir
-                    ":teslimat_yetkili_id" => $shipment_owner,//bu değer set edilmemiş olabilir
-                    ":genel_toplam" => $order['total'],//bu değer set edilmemiş olabilir bu alanı float parse etmek gerekebilir
-                    ":siparis_no" => $order['id'],//abi bunu pk yapaydın ya
-                    ":kart_no" => null,//bununla ilgili dönen hicbir veri yok
-                    ":ekleme_tarih" => $order['shipped_date'],
-                    ":durumu" => 1,//herhangi bir aktif/pasif durumu yok bu nedenle 1 aktif yapıldı
-                    ":banka_json" => null,//herhangi bir banka verisi yok bu nedenle null
-                    ":ekleyen_id" => 1,//herhangi bir ekleyen verisi yok bu nedenle 1
-                    ":guncelleyen_id" => 1,//herhangi bir guncelleyen verisi yok bu nedenle 1
-                    ":silindi" => $order['invoice_deleted'],//fatura silindi bilgisi
-                    ":dekont" => null//fatura silindi bilgisi
-                ));
-            }
-        } catch (PDOException $exception) {
-            echo $exception->getMessage();
-        }
 
-    }
 
     /**
      * @param $kategoriId
@@ -732,130 +669,7 @@ values (:user_id,:teslimat_adresi,:fatura_adresi,:odeme_tipi,:siparis_durumu,:ka
         return "";
     }
 
-    private static function checkCategory($kategori_id)
-    {
-        $prep = self::$con->prepare("select count(id) as 'var' from product_category where id=:id");
-        $prep->execute(array(':id' => $kategori_id));
-        $sonuc = $prep->fetch(PDO::FETCH_ASSOC);
-        if ($sonuc > 0)
-            return true;
-        return false;
-    }
-
-    /**
-     * transaction:işlem tam anlamıyla doğrulanmadan yani tüm ürünler eklenebilir olmadan hiçbir ürünü eklemez
-     * @param mixed $product dopigoProduct array
-     */
-    public static function addDatabaseFromProductArray(array $product)
-    {
-        if (isset($product) && is_array($product) && is_a($product[0], "dopigoProduct")) {
-            try {
-                self::$con->beginTransaction();
-                foreach ($product as $item) {
-                    if (is_a($item, "dopigoProduct")) {//bu sayede object gibi davranmasını sağlıyorum
-                        $prep = self::$con->prepare("insert into products(id, isim, aciklama, kategori_id, vat, meta_id, sku,
-                     yabanci_sku, barcode, agirlik, stok, mevcut_stok, fiyat, fiyat_para_birimi, yerel_fiyat, liste_fiyati,
-                     satin_alma_fiyati, alici_odeme, birincil) VALUES (:id,:isim,:aciklama,:kategori_id,:vat,:meta_id,:sku,:yabanci_sku,:barcode,:agirlik,
-                                                                       :stok,:mevcut_stok,:fiyat,:fiyat_para_birimi,:yerel_fiyat,:liste_fiyati,:satin_alma_fiyati,
-                                                                       :alici_odeme,:birincil)");
-                        $prep->execute(array(':id' => $item->getId(), ':isim' => $item->getIsim(), ':aciklama' => $item->getAciklama(), ':kategori_id' => $item->getKategoriId(), ':vat' => $item->getVat(), ':meta_id' => $item->getMetaId(), ':sku' => $item->getSku(), ':yabanci_sku' => $item->getYabanciSku(), ':barcode' => $item->getBarcode(), ':agirlik' => $item->getAgirlik(), ':stok' => $item->getStok(), ':mevcut_stok' => $item->getStok(), ':fiyat' => $item->getFiyat(), ':fiyat_para_birimi' => $item->getFiyatParaBirim(), ':yerel_fiyat' => $item->getYerelFiyat(), ':liste_fiyati' => $item->getListeFiyat(), ':satin_alma_fiyati' => $item->getSatinAlmaFiyati(), ':alici_odeme' => $item->getAliciOdeme(), ':birincil' => $item->getBirincil()));
-                        $strImagesConcat = "";
-                        foreach ($item->getResimler() as $resim) {
-                            if (is_a($resim, "dopigoImage")) {
-                                $strImagesConcat .= "{kesinUrl:" . strval($resim->getKesinUrl()) . ",kaynakUrl:" . $resim->getKaynakUrl() . "},";
-                            }
-                        }
-                        $prep2 = self::$con->prepare("update products set resimler=:resimler where id=:id");
-                        $prep2->execute(array(':resimler' => $strImagesConcat, ':id' => $item->getId()));
-
-                        if (dopigo::checkCategory($item->getKategoriId())) {
-                            $prep3 = self::$con->prepare("insert into product_category(id, isim) VALUES(:id,:isim) ");
-                            $katName = dopigo::getCategorFromId($item->getKategoriId());
-                            $prep3->execute(array(':id' => $item->getKategoriId(), ":isim" => $katName));
-                        }
-                    }
-
-                }
-                self::$con->commit();
-                self::saveToUserProducts($product);
-            } catch (PDOException $exception) {
-                echo $exception->getMessage();
-            }
-
-        }
-    }
-
-    /**
-     * @param array $data array of products
-     */
-    private static function saveToUserProducts(array $data)
-    {
-
-        if (count($data) > 0 && is_array($data)) {
-            $prep = self::$con->prepare("select * from scheme_product");
-            $prep->execute();
-            //buradan sonra tablo field sayıları eşleşmeme durumu için prep statement seçilen tablo şemasına göre oluşturulacak
-
-            $schemeProduct = $prep->fetch(PDO::FETCH_ASSOC);
-            $schemeTable = (new dBaseTemplate($schemeProduct['targetTableName']))->getScheme();
-            $stringTableInsertScheme = null;
-            $stringTableInsertValues = null;
-            foreach ($schemeProduct as $productKey => $fieldProduct) {
-                foreach ($schemeTable as $tableKey => $fieldTable) {
-                    if (strtolower($fieldProduct) == strtolower($fieldTable['Field'])) {
-                        $stringTableInsertScheme .= $fieldTable['Field'] . ',';
-                        $stringTableInsertValues .= ":" . $productKey . ',';
-                    }
-
-                }
-            }
-            $stringTableInsertValues = rtrim($stringTableInsertValues, "\,");
-            $stringTableInsertScheme = rtrim($stringTableInsertScheme, "\,");
 
 
-            foreach ($data as $item) {
-                $productArray = array();
-                $strImagesConcat = "";
-                foreach ($item->getResimler() as $resim) {
-                    if (is_a($resim, "dopigoImage")) {
-                        $strImagesConcat .= "{kesinUrl:" . strval($resim->getKesinUrl()) . ",kaynakUrl:" . $resim->getKaynakUrl() . "},";
-                    }
-                }
-                if (is_a($item, "dopigoProduct")) {
-                    $productArray['id'] = $item->getId();
-                    $productArray['isim'] = $item->getIsim();
-                    $productArray['aciklama'] = $item->getAciklama();
-                    $productArray['kategori_id'] = $item->getKategoriId();
-                    $productArray['vat'] = $item->getVat();
-                    $productArray['meta_id'] = $item->getMetaId();
-                    $productArray['sku'] = $item->getSku();
-                    $productArray['yabanci_sku'] = $item->getYabanciSku();
-                    $productArray['barcode'] = $item->getBarcode();
-                    $productArray['agirlik'] = $item->getAgirlik();
-                    $productArray['stok'] = $item->getStok();
-                    $productArray['mevcut_stok'] = $item->getMevcutStok();
-                    $productArray['fiyat'] = $item->getFiyat();
-                    $productArray['fiyat_para_birimi'] = $item->getFiyatParaBirim();
-                    $productArray['yerel_fiyat'] = $item->getYerelFiyat();
-                    $productArray['liste_fiyati'] = $item->getListeFiyat();
-                    $productArray['satin_alma_fiyati'] = $item->getSatinAlmaFiyati();
-                    $productArray['alici_odeme'] = $item->getAliciOdeme();
-                    $productArray['birincil'] = $item->getBirincil();
-                    $productArray['resimler'] = $strImagesConcat;
-                }
-                $insertValuesArray = explode(',', $stringTableInsertValues);
-                $tableName = $schemeProduct['targetTableName'];
-                foreach ($insertValuesArray as $item2) {
-                    $insertArray[$item2] = $productArray[str_replace(array(":"), array(""), $item2)];
-                }
-                $query = "insert into $tableName($stringTableInsertScheme) values ($stringTableInsertValues)";
-                $prep = self::$con->prepare($query);
-                if (!$prep->execute($insertArray)) {
-                    die($prep->errorInfo()[2]);
-                } else {
-                    echo "Success";
-                }
-            }
-        }
-    }
+
 }
