@@ -1,0 +1,920 @@
+{
+  "name": "Order List Create",
+  "description": "Create/List order view.",
+  "renders": [
+    "application/json",
+    "text/html",
+    "application/xml"
+  ],
+  "parses": [
+    "application/xml",
+    "application/json"
+  ],
+  "actions": {
+    "POST": {
+      "id": {
+        "type": "integer",
+        "required": false,
+        "read_only": true,
+        "label": "ID"
+      },
+      "owner": {
+        "type": "field",
+        "required": false,
+        "read_only": false,
+        "label": "Owner"
+      },
+      "service": {
+        "type": "field",
+        "required": true,
+        "read_only": false,
+        "label": "Entegrasyon"
+      },
+      "service_name": {
+        "type": "string",
+        "required": false,
+        "read_only": true,
+        "label": "Service name"
+      },
+      "sales_channel": {
+        "type": "string",
+        "required": false,
+        "read_only": false,
+        "label": "Satış kanalı",
+        "max_length": 255
+      },
+      "service_created": {
+        "type": "datetime",
+        "required": false,
+        "read_only": false,
+        "label": "Tarih"
+      },
+      "service_value": {
+        "type": "string",
+        "required": true,
+        "read_only": false,
+        "label": "Kod",
+        "max_length": 120
+      },
+      "service_order_id": {
+        "type": "string",
+        "required": false,
+        "read_only": false,
+        "label": "Sipariş Numarası",
+        "max_length": 250
+      },
+      "products": {
+        "type": "string",
+        "required": false,
+        "read_only": true,
+        "label": "Ürünler"
+      },
+      "customer": {
+        "type": "nested object",
+        "required": false,
+        "read_only": false,
+        "label": "Customer",
+        "children": {
+          "id": {
+            "type": "integer",
+            "required": false,
+            "read_only": false,
+            "label": "Id"
+          },
+          "owner": {
+            "type": "field",
+            "required": false,
+            "read_only": false,
+            "label": "Owner"
+          },
+          "account_type": {
+            "type": "choice",
+            "required": false,
+            "read_only": false,
+            "label": "Hesap Tipi",
+            "choices": [
+              {
+                "value": "person",
+                "display_name": "Şahıs"
+              },
+              {
+                "value": "company",
+                "display_name": "Şirket"
+              }
+            ]
+          },
+          "full_name": {
+            "type": "string",
+            "required": false,
+            "read_only": false,
+            "label": "Isim soyisim",
+            "max_length": 250
+          },
+          "address": {
+            "type": "nested object",
+            "required": true,
+            "read_only": false,
+            "label": "Address",
+            "children": {
+              "id": {
+                "type": "integer",
+                "required": false,
+                "read_only": false,
+                "label": "Id"
+              },
+              "full_address": {
+                "type": "string",
+                "required": false,
+                "read_only": false,
+                "label": "Adres"
+              },
+              "contact_full_name": {
+                "type": "string",
+                "required": false,
+                "read_only": false,
+                "label": "Isim soyisim",
+                "max_length": 250
+              },
+              "contact_phone_number": {
+                "type": "field",
+                "required": false,
+                "read_only": false,
+                "label": "Telefon numarası"
+              },
+              "city": {
+                "type": "string",
+                "required": false,
+                "read_only": false,
+                "label": "Şehir",
+                "max_length": 250
+              },
+              "district": {
+                "type": "string",
+                "required": false,
+                "read_only": false,
+                "label": "Ilçe",
+                "max_length": 250
+              },
+              "zip_code": {
+                "type": "string",
+                "required": false,
+                "read_only": false,
+                "label": "Posta kodu",
+                "max_length": 250
+              }
+            }
+          },
+          "email": {
+            "type": "email",
+            "required": false,
+            "read_only": false,
+            "label": "E-posta adresi",
+            "max_length": 255
+          },
+          "phone_number": {
+            "type": "field",
+            "required": false,
+            "read_only": false,
+            "label": "Telefon numarası"
+          },
+          "citizen_id": {
+            "type": "integer",
+            "required": false,
+            "read_only": false,
+            "label": "T.C Kimlik No",
+            "min_value": -9223372036854776000,
+            "max_value": 9223372036854776000
+          },
+          "tax_id": {
+            "type": "integer",
+            "required": false,
+            "read_only": false,
+            "label": "Vergi no",
+            "min_value": -9223372036854776000,
+            "max_value": 9223372036854776000
+          },
+          "tax_office": {
+            "type": "string",
+            "required": false,
+            "read_only": false,
+            "label": "Vergi dairesi",
+            "max_length": 150
+          },
+          "company_name": {
+            "type": "string",
+            "required": false,
+            "read_only": false,
+            "label": "Şirket adı",
+            "max_length": 200
+          }
+        }
+      },
+      "billing_address": {
+        "type": "nested object",
+        "required": false,
+        "read_only": false,
+        "label": "Billing address",
+        "children": {
+          "id": {
+            "type": "integer",
+            "required": false,
+            "read_only": false,
+            "label": "Id"
+          },
+          "full_address": {
+            "type": "string",
+            "required": false,
+            "read_only": false,
+            "label": "Adres"
+          },
+          "contact_full_name": {
+            "type": "string",
+            "required": false,
+            "read_only": false,
+            "label": "Isim soyisim",
+            "max_length": 250
+          },
+          "contact_phone_number": {
+            "type": "field",
+            "required": false,
+            "read_only": false,
+            "label": "Telefon numarası"
+          },
+          "city": {
+            "type": "string",
+            "required": false,
+            "read_only": false,
+            "label": "Şehir",
+            "max_length": 250
+          },
+          "district": {
+            "type": "string",
+            "required": false,
+            "read_only": false,
+            "label": "Ilçe",
+            "max_length": 250
+          },
+          "zip_code": {
+            "type": "string",
+            "required": false,
+            "read_only": false,
+            "label": "Posta kodu",
+            "max_length": 250
+          }
+        }
+      },
+      "shipping_address": {
+        "type": "nested object",
+        "required": false,
+        "read_only": false,
+        "label": "Shipping address",
+        "children": {
+          "id": {
+            "type": "integer",
+            "required": false,
+            "read_only": false,
+            "label": "Id"
+          },
+          "full_address": {
+            "type": "string",
+            "required": false,
+            "read_only": false,
+            "label": "Adres"
+          },
+          "contact_full_name": {
+            "type": "string",
+            "required": false,
+            "read_only": false,
+            "label": "Isim soyisim",
+            "max_length": 250
+          },
+          "contact_phone_number": {
+            "type": "field",
+            "required": false,
+            "read_only": false,
+            "label": "Telefon numarası"
+          },
+          "city": {
+            "type": "string",
+            "required": false,
+            "read_only": false,
+            "label": "Şehir",
+            "max_length": 250
+          },
+          "district": {
+            "type": "string",
+            "required": false,
+            "read_only": false,
+            "label": "Ilçe",
+            "max_length": 250
+          },
+          "zip_code": {
+            "type": "string",
+            "required": false,
+            "read_only": false,
+            "label": "Posta kodu",
+            "max_length": 250
+          }
+        }
+      },
+      "shipped_date": {
+        "type": "datetime",
+        "required": false,
+        "read_only": false,
+        "label": "Kargolanma zamanı"
+      },
+      "payment_type": {
+        "type": "choice",
+        "required": false,
+        "read_only": false,
+        "label": "Ödeme türü",
+        "choices": [
+          {
+            "value": "cc",
+            "display_name": "Kredi Kartı"
+          },
+          {
+            "value": "bonus_pay",
+            "display_name": "Bonus Pay"
+          },
+          {
+            "value": "bkm",
+            "display_name": "BKM"
+          },
+          {
+            "value": "n11_points",
+            "display_name": "N11 Puanı"
+          },
+          {
+            "value": "undefined",
+            "display_name": "Belirtilmemiş"
+          }
+        ]
+      },
+      "status": {
+        "type": "choice",
+        "required": false,
+        "read_only": false,
+        "label": "Sipariş Durumu",
+        "choices": [
+          {
+            "value": "pending",
+            "display_name": "onay bekliyor"
+          },
+          {
+            "value": "waiting_shipment",
+            "display_name": "Kargolanmayı Bekliyor"
+          },
+          {
+            "value": "shipped",
+            "display_name": "kargolandı"
+          },
+          {
+            "value": "cancelled",
+            "display_name": "iptal edildi"
+          },
+          {
+            "value": "undefined",
+            "display_name": "Belirtilmemiş"
+          }
+        ]
+      },
+      "total": {
+        "type": "decimal",
+        "required": false,
+        "read_only": false,
+        "label": "Toplam",
+        "min_value": 0
+      },
+      "service_fee": {
+        "type": "decimal",
+        "required": false,
+        "read_only": false,
+        "label": "Kargo Hizmet Bedeli",
+        "min_value": 0
+      },
+      "discount": {
+        "type": "decimal",
+        "required": false,
+        "read_only": false,
+        "label": "İndirim",
+        "min_value": 0
+      },
+      "archived": {
+        "type": "boolean",
+        "required": false,
+        "read_only": true,
+        "label": "Arşivlendi"
+      },
+      "notes": {
+        "type": "string",
+        "required": false,
+        "read_only": false,
+        "label": "Notlar"
+      },
+      "items": {
+        "type": "field",
+        "required": false,
+        "read_only": false,
+        "label": "Items",
+        "child": {
+          "type": "nested object",
+          "required": false,
+          "read_only": false,
+          "children": {
+            "id": {
+              "type": "integer",
+              "required": false,
+              "read_only": false,
+              "label": "Id"
+            },
+            "owner": {
+              "type": "field",
+              "required": false,
+              "read_only": false,
+              "label": "Owner"
+            },
+            "order": {
+              "type": "field",
+              "required": false,
+              "read_only": false,
+              "label": "Order"
+            },
+            "service_item_id": {
+              "type": "string",
+              "required": false,
+              "read_only": false,
+              "label": "Entegrasyon item id",
+              "max_length": 128
+            },
+            "service_product_id": {
+              "type": "string",
+              "required": false,
+              "read_only": false,
+              "label": "Entegrasyon ürün id",
+              "max_length": 128
+            },
+            "service_shipment_code": {
+              "type": "string",
+              "required": false,
+              "read_only": false,
+              "label": "Service kargo kodu",
+              "max_length": 128
+            },
+            "sku": {
+              "type": "string",
+              "required": false,
+              "read_only": false,
+              "label": "SKU",
+              "max_length": 200
+            },
+            "attributes": {
+              "type": "string",
+              "required": "False",
+              "read_only": false,
+              "label": "Özellikler"
+            },
+            "name": {
+              "type": "string",
+              "required": false,
+              "read_only": false,
+              "label": "Isim",
+              "max_length": 200
+            },
+            "amount": {
+              "type": "integer",
+              "required": false,
+              "read_only": false,
+              "label": "Miktar",
+              "min_value": 0,
+              "max_value": 2147483647
+            },
+            "price": {
+              "type": "decimal",
+              "required": false,
+              "read_only": false,
+              "label": "Satış Fiyatı",
+              "min_value": 0
+            },
+            "unit_price": {
+              "type": "decimal",
+              "required": false,
+              "read_only": false,
+              "label": "Satış Fiyatı",
+              "min_value": 0
+            },
+            "shipment": {
+              "type": "field",
+              "required": false,
+              "read_only": false,
+              "label": "Kargo"
+            },
+            "shipment_campaign_code": {
+              "type": "string",
+              "required": false,
+              "read_only": false,
+              "label": "Kargo kampanya kodu",
+              "max_length": 250
+            },
+            "buyer_pays_shipment": {
+              "type": "boolean",
+              "required": false,
+              "read_only": false,
+              "label": "Alıcı öder"
+            },
+            "status": {
+              "type": "choice",
+              "required": false,
+              "read_only": false,
+              "label": "Durum",
+              "choices": [
+                {
+                  "value": "pending",
+                  "display_name": "onay bekliyor"
+                },
+                {
+                  "value": "approved",
+                  "display_name": "Onaylanmış"
+                },
+                {
+                  "value": "rejected",
+                  "display_name": "Reddedildi"
+                },
+                {
+                  "value": "cancelled",
+                  "display_name": "iptal edildi"
+                },
+                {
+                  "value": "picking",
+                  "display_name": "Hazırlanıyor"
+                },
+                {
+                  "value": "shipped",
+                  "display_name": "kargolandı"
+                },
+                {
+                  "value": "waiting_shipment",
+                  "display_name": "Kargolanmayı Bekliyor"
+                },
+                {
+                  "value": "undefined",
+                  "display_name": "Belirtilmemiş"
+                }
+              ]
+            },
+            "shipment_provider": {
+              "type": "field",
+              "required": false,
+              "read_only": false,
+              "label": "Kargo"
+            },
+            "tax_ratio": {
+              "type": "field",
+              "required": false,
+              "read_only": true,
+              "label": "Tax ratio"
+            },
+            "product": {
+              "type": "nested object",
+              "required": false,
+              "read_only": false,
+              "label": "Product",
+              "children": {
+                "id": {
+                  "type": "integer",
+                  "required": false,
+                  "read_only": true,
+                  "label": "ID"
+                },
+                "sku": {
+                  "type": "string",
+                  "required": false,
+                  "read_only": false,
+                  "label": "Ürün Kodu",
+                  "max_length": 128
+                },
+                "foreign_sku": {
+                  "type": "string",
+                  "required": false,
+                  "read_only": false,
+                  "label": "Tedarikçi Ürün Kodu",
+                  "max_length": 128
+                }
+              }
+            },
+            "linked_product": {
+              "type": "field",
+              "required": false,
+              "read_only": true,
+              "label": "Linked product"
+            }
+          }
+        }
+      },
+      "invoice_number": {
+        "type": "field",
+        "required": false,
+        "read_only": true,
+        "label": "Invoice number"
+      },
+      "invoice_created": {
+        "type": "field",
+        "required": false,
+        "read_only": true,
+        "label": "Invoice created"
+      },
+      "invoice_type": {
+        "type": "field",
+        "required": false,
+        "read_only": true,
+        "label": "Invoice type"
+      },
+      "invoice_vat_total": {
+        "type": "field",
+        "required": false,
+        "read_only": true,
+        "label": "Invoice vat total"
+      },
+      "invoice_grand_total": {
+        "type": "field",
+        "required": false,
+        "read_only": true,
+        "label": "Invoice grand total"
+      },
+      "invoice_deleted": {
+        "type": "field",
+        "required": false,
+        "read_only": true,
+        "label": "Invoice deleted"
+      }
+    }
+  },
+
+  "name":{
+    "type":"string",
+    "required":true,
+    "read_only":false,
+    "label":"Ürün ismi",
+    "min_length":1,
+    "max_length":150
+  },
+  "description":{
+    "type":"string",
+    "required":false,
+    "read_only":false,
+    "label":"Açıklama"
+  },
+  "category":{
+    "type":"nested object",
+    "required":false,
+    "read_only":true,
+    "label":"Category",
+    "children":{
+      "id":{
+        "type":"integer",
+        "required":false,
+        "read_only":true,
+        "label":"ID"
+      },
+      "name":{
+        "type":"string",
+        "required":true,
+        "read_only":false,
+        "label":"Isim",
+        "max_length":100
+      }
+    }
+  },
+  "vat":{
+    "type":"choice",
+    "required":false,
+    "read_only":false,
+    "label":"KDV",
+    "choices":[
+      {
+        "value":null,
+        "display_name":""
+      },
+      {
+        "value":0,
+        "display_name":"%0"
+      },
+      {
+        "value":1,
+        "display_name":"%1"
+      },
+      {
+        "value":8,
+        "display_name":"%8"
+      },
+      {
+        "value":18,
+        "display_name":"%18"
+      }
+    ]
+  },
+  "products":{
+    "type":"field",
+    "required":true,
+    "read_only":false,
+    "label":"Products",
+    "child":{
+      "type":"nested object",
+      "required":true,
+      "read_only":false,
+      "children":{
+        "id":{
+          "type":"integer",
+          "required":false,
+          "read_only":true,
+          "label":"ID"
+        },
+        "meta_id":{
+          "type":"field",
+          "required":false,
+          "read_only":true,
+          "label":"Meta id"
+        },
+        "sku":{
+          "type":"string",
+          "required":false,
+          "read_only":false,
+          "label":"Ürün Kodu",
+          "max_length":128
+        },
+        "foreign_sku":{
+          "type":"string",
+          "required":false,
+          "read_only":false,
+          "label":"Tedarikçi Ürün Kodu",
+          "max_length":128
+        },
+        "barcode":{
+          "type":"string",
+          "required":false,
+          "read_only":false,
+          "label":"Barkod / GTIN",
+          "max_length":128
+        },
+        "weight":{
+          "type":"decimal",
+          "required":false,
+          "read_only":false,
+          "label":"Ağırlık",
+          "min_value":0
+        },
+        "stock":{
+          "type":"integer",
+          "required":false,
+          "read_only":false,
+          "label":"Stok",
+          "min_value":0,
+          "max_value":2147483647
+        },
+        "available_stock":{
+          "type":"integer",
+          "required":false,
+          "read_only":false,
+          "label":"Satılabilir stok",
+          "min_value":0,
+          "max_value":2147483647
+        },
+        "price":{
+          "type":"decimal",
+          "required":false,
+          "read_only":false,
+          "label":"Satış Fiyatı",
+          "min_value":0
+        },
+        "price_currency":{
+          "type":"choice",
+          "required":false,
+          "read_only":false,
+          "label":"Para birimi",
+          "choices":[
+            {
+              "value":"TRY",
+              "display_name":"TL"
+            },
+            {
+              "value":"USD",
+              "display_name":"USD"
+            },
+            {
+              "value":"EUR",
+              "display_name":"EUR"
+            }
+          ]
+        },
+        "price_local":{
+          "type":"decimal",
+          "required":false,
+          "read_only":false,
+          "label":"Yerel Fiyat",
+          "min_value":0
+        },
+        "listing_price":{
+          "type":"decimal",
+          "required":false,
+          "read_only":false,
+          "label":"Liste Fiyatı",
+          "min_value":0
+        },
+        "purchase_price":{
+          "type":"decimal",
+          "required":false,
+          "read_only":false,
+          "label":"Alış Fiyatı",
+          "min_value":0
+        },
+        "buyer_pays_shipping":{
+          "type":"boolean",
+          "required":false,
+          "read_only":false,
+          "label":"Kargoyu alıcı öder"
+        },
+        "images":{
+          "type":"field",
+          "required":true,
+          "read_only":false,
+          "label":"Images",
+          "child":{
+            "type":"nested object",
+            "required":true,
+            "read_only":false,
+            "children":{
+              "absolute_url":{
+                "type":"field",
+                "required":false,
+                "read_only":true,
+                "label":"Absolute url"
+              },
+              "source_url":{
+                "type":"string",
+                "required":false,
+                "read_only":false,
+                "label":"Source url",
+                "max_length":2048
+              }
+            }
+          }
+        },
+        "custom_attributes":{
+          "type":"field",
+          "required":true,
+          "read_only":false,
+          "label":"Custom attributes",
+          "child":{
+            "type":"nested object",
+            "required":true,
+            "read_only":false,
+            "children":{
+              "attribute":{
+                "type":"nested object",
+                "required":true,
+                "read_only":false,
+                "label":"Attribute",
+                "children":{
+                  "name":{
+                    "type":"string",
+                    "required":false,
+                    "read_only":false,
+                    "label":"Isim",
+                    "max_length":150
+                  }
+                }
+              },
+              "value":{
+                "type":"nested object",
+                "required":true,
+                "read_only":false,
+                "label":"Value",
+                "children":{
+                  "name":{
+                    "type":"string",
+                    "required":false,
+                    "read_only":false,
+                    "label":"Isim",
+                    "max_length":150
+                  }
+                }
+              }
+            }
+          }
+        },
+        "is_primary":{
+          "type":"boolean",
+          "required":false,
+          "read_only":false,
+          "label":"Ana ürün"
+        },
+        "meta":{
+          "type":"field",
+          "required":false,
+          "read_only":true,
+          "label":"Meta"
+        }
+      }
+    }
+  }
+}
