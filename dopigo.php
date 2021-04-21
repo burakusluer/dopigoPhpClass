@@ -133,7 +133,8 @@ class dopigo
 
             //dopigo billing address
             $dBillingAddress=new DopigoBillingAddress();
-//            $dBillingAddress
+            $dBillingAddress->setId(!empty($item->billing_address->id) ?  $item->billing_address->id : 0);
+            $dBillingAddress->setId(!empty($item->billing_address->id) ?  $item->billing_address->id : 0);
 
         }
 
