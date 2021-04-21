@@ -1594,3 +1594,7 @@ class DopigoOrderItemProduct
         $this->_foreign_sku = $_foreign_sku;
     }
 }
+class DopigoOrderItemLinkedProduct extends DopigoOrderItemProduct
+{
+
+}//tamamiyle aynısı

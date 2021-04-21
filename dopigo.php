@@ -1,6 +1,9 @@
 <?php
+
+
 include_once "dopigoProduct.php";
 include "dopigoOrder.php";
+
 class dopigo
 {
     public $token = null;
@@ -82,9 +85,9 @@ class dopigo
 
 
     /**
-     * @return null | array
      * @param $array_of_results array | null ilgili fonksiyondan dönen json verilerinin result'ı verilmelidir
      * varsayılan olarak 30 order değeri gelmektedir !!
+     * @return null | array
      */
     public static function dopigo_order_parser($array_of_results)
     {
@@ -92,27 +95,27 @@ class dopigo
             return null;
 
 
-        $dopigo_orders=array();
+        $dopigo_orders = array();
         foreach ($array_of_results as $item) {
-            $dopigo_order=new DopigoOrder();
-            $dopigo_order->setId(!empty($item->id) ? $item->id:0);
-            $dopigo_order->setService(!empty($item->service) ? $item->service:0);
-            $dopigo_order->setServiceName(!empty($item->service_name) ? $item->service_name:"");
-            $dopigo_order->setServiceLogo(!empty($item->service_logo) ? $item->service_logo:null);
-            $dopigo_order->setSalesChannel(!empty($item->sales_channel) ? $item->sales_channel:null);
-            $dopigo_order->setServiceCreated(!empty($item->service_created) ? $item->service_created:null);
-            $dopigo_order->setServiceValue(!empty($item->service_value) ? $item->service_value:null);
-            $dopigo_order->setServiceOrderId(!empty($item->service_order_id) ? $item->service_order_id:null);
-            $dopigo_order->setProducts(!empty($item->products) ? $item->products:null);
+            $dopigo_order = new DopigoOrder();
+            $dopigo_order->setId(!empty($item->id) ? $item->id : 0);
+            $dopigo_order->setService(!empty($item->service) ? $item->service : 0);
+            $dopigo_order->setServiceName(!empty($item->service_name) ? $item->service_name : "");
+            $dopigo_order->setServiceLogo(!empty($item->service_logo) ? $item->service_logo : null);
+            $dopigo_order->setSalesChannel(!empty($item->sales_channel) ? $item->sales_channel : null);
+            $dopigo_order->setServiceCreated(!empty($item->service_created) ? $item->service_created : null);
+            $dopigo_order->setServiceValue(!empty($item->service_value) ? $item->service_value : null);
+            $dopigo_order->setServiceOrderId(!empty($item->service_order_id) ? $item->service_order_id : null);
+            $dopigo_order->setProducts(!empty($item->products) ? $item->products : null);
 
             //dopigo customer
-            $dCustomer=new DopigoCustomer();
-            $dCustomer->setId(!empty($item->customer->id) ? $item->customer->id: 0);
-            $dCustomer->setAccountType(!empty($item->customer->account_type) ? $item->customer->account_type: "person");
-            $dCustomer->setFullName(!empty($item->customer->full_name) ? $item->customer->full_name: "anonymous person");
+            $dCustomer = new DopigoCustomer();
+            $dCustomer->setId(!empty($item->customer->id) ? $item->customer->id : 0);
+            $dCustomer->setAccountType(!empty($item->customer->account_type) ? $item->customer->account_type : "person");
+            $dCustomer->setFullName(!empty($item->customer->full_name) ? $item->customer->full_name : "anonymous person");
 
             //dopigo customer address
-            $dCAddress=new DopigoAddress();
+            $dCAddress = new DopigoAddress();
             $dCAddress->setId(!empty($item->customer->address->id) ? $item->customer->address->id : 0);
             $dCAddress->setFullAddress(!empty($item->customer->address->full_address) ? $item->customer->address->full_address : "");
             $dCAddress->setContactFullName(!empty($item->customer->address->contact_full_name) ? $item->customer->address->contact_full_name : "");
@@ -123,18 +126,89 @@ class dopigo
             $dCustomer->setAddress($dCAddress);
 
             //dopigo customer devam
-            $dCustomer->setEmail(!empty($item->customer->email) ? $item->customer->email: "anonymous@domain.com");
-            $dCustomer->setPhoneNumber(!empty($item->customer->phone_number) ? $item->customer->phone_number: "+905555555555");
-            $dCustomer->setCitizenId(!empty($item->customer->citizen_id) ? $item->customer->citizen_id: null);
-            $dCustomer->setTaxId(!empty($item->customer->tax_id) ? $item->customer->tax_id: null);
-            $dCustomer->setTaxOffice(!empty($item->customer->tax_office) ? $item->customer->tax_office: null);
-            $dCustomer->setCompanyName(!empty($item->customer->company_name) ? $item->customer->company_name: "");
+            $dCustomer->setEmail(!empty($item->customer->email) ? $item->customer->email : "anonymous@domain.com");
+            $dCustomer->setPhoneNumber(!empty($item->customer->phone_number) ? $item->customer->phone_number : "+905555555555");
+            $dCustomer->setCitizenId(!empty($item->customer->citizen_id) ? $item->customer->citizen_id : null);
+            $dCustomer->setTaxId(!empty($item->customer->tax_id) ? $item->customer->tax_id : null);
+            $dCustomer->setTaxOffice(!empty($item->customer->tax_office) ? $item->customer->tax_office : null);
+            $dCustomer->setCompanyName(!empty($item->customer->company_name) ? $item->customer->company_name : "");
             $dopigo_order->setCustomer($dCustomer);
 
             //dopigo billing address
-            $dBillingAddress=new DopigoBillingAddress();
-            $dBillingAddress->setId(!empty($item->billing_address->id) ?  $item->billing_address->id : 0);
-            $dBillingAddress->setFullAddress(!empty($item->billing_address->full_address) ?  $item->billing_address->full_address : 0);
+            $dBillingAddress = new DopigoBillingAddress();
+            $dBillingAddress->setId(!empty($item->billing_address->id) ? $item->billing_address->id : 0);
+            $dBillingAddress->setFullAddress(!empty($item->billing_address->full_address) ? $item->billing_address->full_address : 0);
+            $dBillingAddress->setContactFullName(!empty($item->billing_address->contact_full_name) ? $item->billing_address->contact_full_name : "");
+            $dBillingAddress->setContactPhoneNumber(!empty($item->billing_address->contact_phone_number) ? $item->billing_address->contact_phone_number : "+905555555555");
+            $dBillingAddress->setCity(!empty($item->billing_address->city) ? $item->billing_address->city : "+905555555555");
+            $dBillingAddress->setDistrict(!empty($item->billing_address->district) ? $item->billing_address->district : "none");
+            $dBillingAddress->setZipCode(!empty($item->billing_address->zip_code) ? $item->billing_address->zip_code : "none");
+            $dopigo_order->setBillingAddress($dBillingAddress);
+
+            //dopigo shipping address
+            $dShippingAddress = new DopigoShippingAddress();
+            $dShippingAddress->setId(!empty($item->shipping_address->id) ? $item->shipping_address->id : 0);
+            $dShippingAddress->setFullAddress(!empty($item->shipping_address->full_address) ? $item->shipping_address->full_address : "none");
+            $dShippingAddress->setContactFullName(!empty($item->shipping_address->contact_full_name) ? $item->shipping_address->contact_full_name : "none");
+            $dShippingAddress->setContactPhoneNumber(!empty($item->shipping_address->contact_phone_number) ? $item->shipping_address->contact_phone_number : "+905555555555");
+            $dShippingAddress->setCity(!empty($item->shipping_address->city) ? $item->shipping_address->city : "none");
+            $dShippingAddress->setDistrict(!empty($item->shipping_address->district) ? $item->shipping_address->district : "none");
+            $dShippingAddress->setZipCode(!empty($item->shipping_address->zip_code) ? $item->shipping_address->zip_code : "none");
+            $dopigo_order->setShippingAddress($dShippingAddress);
+
+            //dopigo order devam
+            $dopigo_order->setShippedDate(!empty($item->shipped_date) ? $item->shipped_date : null);
+            $dopigo_order->setPaymentType(!empty($item->payment_type) ? $item->payment_type : "undefined");
+            $dopigo_order->setStatus(!empty($item->status) ? $item->status : "undefined");
+            $dopigo_order->setTotal(!empty($item->total) ? $item->total : 0.00);
+            $dopigo_order->setServiceFee(!empty($item->service_fee) ? $item->service_fee : 0.00);
+            $dopigo_order->setDiscount(!empty($item->discount) ? $item->discount : null);
+            $dopigo_order->setArchived(!empty($item->archived) ? $item->archived : false);
+            $dopigo_order->setNotes(!empty($item->notes) ? $item->notes : "");
+
+            //dopigo items
+
+            $array_of_items = array();
+            if (isset($item->items) && !empty($item->items) && count($item->items) > 0) {
+                foreach ($item->items as $dopigoOrderItem) {
+                    $dopigoNewProductItem = new DopigoOrderItem();
+                    $dopigoNewProductItem->setId(!empty($dopigoOrderItem->id) ? $dopigoOrderItem->id : 0);
+                    $dopigoNewProductItem->setOrder(!empty($dopigoOrderItem->order) ? $dopigoOrderItem->order : 0);
+                    $dopigoNewProductItem->setServiceItemId(!empty($dopigoOrderItem->service_item_id) ? $dopigoOrderItem->service_item_id : 0);
+                    $dopigoNewProductItem->setServiceProductId(!empty($dopigoOrderItem->service_product_id) ? $dopigoOrderItem->service_product_id : 0);
+                    $dopigoNewProductItem->setServiceShipmentCode(!empty($dopigoOrderItem->service_shipment_code) ? $dopigoOrderItem->service_shipment_code : 0);
+                    $dopigoNewProductItem->setSku(!empty($dopigoOrderItem->sku) ? $dopigoOrderItem->sku : 0);
+                    $dopigoNewProductItem->setAtributes(!empty($dopigoOrderItem->attributes) ? $dopigoOrderItem->attributes : null);//string
+                    $dopigoNewProductItem->setName(!empty($dopigoOrderItem->name) ? $dopigoOrderItem->name : null);
+                    $dopigoNewProductItem->setAmount(!empty($dopigoOrderItem->amount) ? $dopigoOrderItem->amount : 0);
+                    $dopigoNewProductItem->setPrice(!empty($dopigoOrderItem->price) ? $dopigoOrderItem->price : 0.00);
+                    $dopigoNewProductItem->setUnitPrice(!empty($dopigoOrderItem->unit_price) ? $dopigoOrderItem->unit_price : 0.00);
+                    $dopigoNewProductItem->setShipment(!empty($dopigoOrderItem->shipment) ? $dopigoOrderItem->shipment : null);
+                    $dopigoNewProductItem->setShipmentCampaignCode(!empty($dopigoOrderItem->shipment_campaign_code) ? $dopigoOrderItem->shipment_campaign_code : "none");
+                    $dopigoNewProductItem->setBuyerPaysShipment(!empty($dopigoOrderItem->buyer_pays_shipment) ? $dopigoOrderItem->buyer_pays_shipment : false);
+                    $dopigoNewProductItem->setStatus(!empty($dopigoOrderItem->status) ? $dopigoOrderItem->status : "undefined");
+                    $dopigoNewProductItem->setShipmnetProvider(!empty($dopigoOrderItem->shipment_provider) ? $dopigoOrderItem->shipment_provider : null);
+                    $dopigoNewProductItem->setTaxRatio(!empty($dopigoOrderItem->tax_ratio) ? $dopigoOrderItem->tax_ratio : null);
+
+                    //Dopigo Order Item Product
+                    $dopigoNewProductItem->setProduct((isset($dopigoOrderItem->product) && !empty($dopigoOrderItem->product)) ? new DopigoOrderItemProduct(
+                        (isset($dopigoOrderItem->product->id) && !empty($dopigoOrderItem->product->id)) ? $dopigoOrderItem->product : 0,
+                        (isset($dopigoOrderItem->product->sku) && !empty($dopigoOrderItem->product->sku)) ? $dopigoOrderItem->product->sku : null,
+                        (isset($dopigoOrderItem->product->foreign_sku) && !empty($dopigoOrderItem->product->foreign_sku)) ? $dopigoOrderItem->product->foreign_sku : null):
+                        null);
+                    //Dopigo Order Item Linked Product
+                    $dopigoNewProductItem->setLinkedProduct((isset($dopigoOrderItem->linked_product) && !empty($dopigoOrderItem->linked_product)) ? new DopigoOrderItemLinkedProduct(
+                        (isset($dopigoOrderItem->linked_product->id) && !empty($dopigoOrderItem->linked_product->id)) ? $dopigoOrderItem->linked_product : 0,
+                        (isset($dopigoOrderItem->linked_product->sku) && !empty($dopigoOrderItem->linked_product->sku)) ? $dopigoOrderItem->linked_product->sku : null,
+                        (isset($dopigoOrderItem->linked_product->foreign_sku) && !empty($dopigoOrderItem->linked_product->foreign_sku)) ? $dopigoOrderItem->linked_product->foreign_sku : null):
+                        null);
+
+                    $array_of_items[]=$dopigoNewProductItem;
+                }
+                $dopigo_order->setItems($array_of_items);
+
+
+            }
 
         }
 
@@ -645,7 +719,6 @@ class dopigo
     }
 
 
-
     /**
      * @param $kategoriId
      * @return string
@@ -668,8 +741,6 @@ class dopigo
         }
         return "";
     }
-
-
 
 
 }
