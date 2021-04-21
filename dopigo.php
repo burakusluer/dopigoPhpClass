@@ -292,6 +292,67 @@ class dopigo
         return json_decode($data);
     }
 
+
+    /**
+     * @param $_customer_id
+     * @return stdClass  raw dopigo user yada
+     * stdClass Object
+     * (
+     * [detail] => Bulunamadı.
+     * )
+     * şeklinde dönüş yapar
+     */
+    public function checkCustomer($_customer_id)
+    {
+        $ch = curl_init("https://panel.dopigo.com/api/v1/customers/" . strval($_customer_id) . "/");
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('authorization:Token ' . $this->getToken(), "Content-Type:application/json"));
+        curl_setopt($ch, CURLOPT_HTTPGET, 1);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $data = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($data);
+    }
+
+    public function createCustomer(DopigoCustomer $customer)
+    {
+
+        $options = array(
+            'id' => ($customer->getId() != null && $customer->getId() !== 0) ? $customer->getId() : null,
+            'account_type' => ($customer->getAccountType() != null && $customer->getAccountType() !== "") ? $customer->getAccountType() : "person",
+            'full_name' => ($customer->getFullName() != null && $customer->getFullName() !== "") ? $customer->getFullName() : "anonymous user",
+            'address' => array(
+                "id" => ($customer->getAddress()->getId() != null && $customer->getAddress()->getId() != 0) ? $customer->getAddress()->getId() : null,
+                "full_address" => ($customer->getAddress()->getFullAddress() != null && $customer->getAddress()->getFullAddress() != "") ? $customer->getAddress()->getFullAddress() : "anonymous" . $_SERVER['SERVER_NAME'],
+                "contact_full_name" => ($customer->getAddress()->getContactFullName() != null && $customer->getAddress()->getContactFullName() != "") ? $customer->getAddress()->getContactFullName() : "anonymous user",
+                "contact_phone_number" => ($customer->getAddress()->getContactPhoneNumber() != null && $customer->getAddress()->getContactPhoneNumber() != "") ? $customer->getAddress()->getContactPhoneNumber() : "+905555555555",
+                "city" => ($customer->getAddress()->getCity() != null && $customer->getAddress()->getCity() != "") ? $customer->getAddress()->getCity() : "Anonymous City",
+                "district" => ($customer->getAddress()->getDistrict() != null && $customer->getAddress()->getDistrict() != "") ? $customer->getAddress()->getDistrict() : "Anonymous State",
+                "zip_code" => ($customer->getAddress()->getZipCode() != null && $customer->getAddress()->getZipCode() != "") ? $customer->getAddress()->getZipCode() : "35555",
+            ),
+            'email' => ($customer->getFullName() != null && $customer->getEmail() !== "") ? $customer->getEmail() : null,
+            'phone_number' => ($customer->getPhoneNumber() != null && $customer->getPhoneNumber() !== "") ? $customer->getPhoneNumber() : null,
+            'citizen_id' => ($customer->getCitizenId() != null && $customer->getCitizenId() !== 0) ? $customer->getCitizenId() : null,
+            'tax_id' => ($customer->getTaxId() != null && $customer->getTaxId() !== 0) ? $customer->getTaxId() : null,
+            'tax_office' => ($customer->getTaxOffice() != null && $customer->getTaxOffice() !== "") ? $customer->getTaxOffice() : null,
+            'company_name' => ($customer->getCompanyName() != null && $customer->getCompanyName() !== "") ? $customer->getCompanyName() : null,
+        );
+
+
+        $ch = curl_init("/api/v1/customers/");
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('authorization:Token ' . $this->getToken(), "Content-Type:application/json"));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options));
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $data = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($data);
+    }
+
+
     /**
      * @return mixed|array
      */

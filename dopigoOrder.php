@@ -172,6 +172,29 @@ class DopigoCustomer
     //</editor-fold>
 
 
+    /**
+     * @return stdClass olumlu ise raw customer döndürür olumsuz ise hata sebebini döndürür
+     */
+    public function push_customer_to_dopigo()
+    {
+        include_once "dopigo.php";
+        return (new dopigo())->createCustomer($this);
+    }
+
+    /**
+     * @return bool customer dopigoda var mı ?
+     */
+    public function dopigo_check_user_exists()
+    {
+        include_once "dopigo.php";
+        $dopigo = new dopigo();
+        $rawCustomer = $dopigo->checkCustomer($this->_id);
+        if (isset($rawCustomer->id)) {
+            return true;
+        }
+        return false;
+    }
+
     private $_id, $_account_type, $_full_name, $_address, $_email, $_phone_number, $_citizen_id, $_tax_id, $_tax_office,
         $_company_name;
 
@@ -188,9 +211,20 @@ class DopigoCustomer
      * @param string $_tax_office :vergi dairesi
      * @param string $_company_name : şirket adı
      */
-    public function __construct($_id = 0, $_account_type = "company", $_full_name = "", DopigoAddress $_address = null, $_email = "", $_phone_number = "", $_citizen_id = 0, $_tax_id = 0, $_tax_office = "", $_company_name = "")
+    public function __construct($_id = 0, $_account_type = "company", $_full_name = "", DopigoAddress $_address = null,
+                                $_email = "", $_phone_number = "", $_citizen_id = 0, $_tax_id = 0, $_tax_office = "",
+                                $_company_name = "")
     {
-
+        $this->_id = $_id;
+        $this->_account_type = $_account_type;
+        $this->_full_name = $_full_name;
+        $this->_address = $_address;
+        $this->_email = $_email;
+        $this->_phone_number = $_phone_number;
+        $this->_citizen_id = $_citizen_id;
+        $this->_tax_id = $_tax_id;
+        $this->_tax_office = $_tax_office;
+        $this->_company_name = $_company_name;
     }
 
 }
@@ -824,7 +858,8 @@ class DopigoOrder
 
     /**
      * @return array | null hata fırlatabilir id durumunu kontrol etmelisin
-     * 2.olarak da dopigoda customer'ın önceden oluşup oluşmadığı kontrol edilmelidir
+     * 2.olarak da dopigoda customer'ın önceden oluşup oluşmadığı kontrol edilmelidir aksi halde
+     * 'İlgili Customer Henüz Oluşturulmamış Dopigo Tarafında Customer Olmaksızın Sipariş Oluşturulamaz' hatası alınır
      */
     public function push_order_to_dopigo()
     {
@@ -837,33 +872,33 @@ class DopigoOrder
 
                 foreach ($this->getItems() as $item) {
                     if (is_a($item, "DopigoOrderItem")) {
-                        $casted_items[]=array(
-                            'id'=>$item->getId(),
-                            'order'=>$item->getOrder(),
-                            'service_item_id'=>$item->getServiceItemId(),
-                            'service_product_id'=>$item->getServiceProductId(),
-                            'service_shipment_code'=>$item->getServiceShipmentCode(),
-                            'sku'=>$item->getSku(),
-                            'attributes'=>$item->getAtributes(),
-                            'name'=>$item->getName(),
-                            'amount'=>$item->getAmount(),
-                            'price'=>$item->getPrice(),
-                            'unit_price'=>$item->getUnitPrice(),
-                            'shipment'=>$item->getShipment(),
-                            'shipment_campaign_code'=>$item->getShipmentCampaignCode(),
-                            'buyer_pays_shipment'=>$item->isBuyerPaysShipment(),
-                            'status'=>$item->getStatus(),
-                            'shipment_provider'=>$item->getShipmnetProvider(),
-                            'tax_ratio'=>$item->getTaxRatio(),
-                            'product'=>array(
-                                'id'=>$item->getProduct()->getId(),
-                                'sku'=>$item->getProduct()->getSku(),
-                                'foreign_sku'=>$item->getProduct()->getForeignSku()
+                        $casted_items[] = array(
+                            'id' => $item->getId(),
+                            'order' => $item->getOrder(),
+                            'service_item_id' => $item->getServiceItemId(),
+                            'service_product_id' => $item->getServiceProductId(),
+                            'service_shipment_code' => $item->getServiceShipmentCode(),
+                            'sku' => $item->getSku(),
+                            'attributes' => $item->getAtributes(),
+                            'name' => $item->getName(),
+                            'amount' => $item->getAmount(),
+                            'price' => $item->getPrice(),
+                            'unit_price' => $item->getUnitPrice(),
+                            'shipment' => $item->getShipment(),
+                            'shipment_campaign_code' => $item->getShipmentCampaignCode(),
+                            'buyer_pays_shipment' => $item->isBuyerPaysShipment(),
+                            'status' => $item->getStatus(),
+                            'shipment_provider' => $item->getShipmnetProvider(),
+                            'tax_ratio' => $item->getTaxRatio(),
+                            'product' => array(
+                                'id' => $item->getProduct()->getId(),
+                                'sku' => $item->getProduct()->getSku(),
+                                'foreign_sku' => $item->getProduct()->getForeignSku()
                             ),
-                            'linked_product'=>array(
-                                'id'=>$item->getLinkedProduct()->getId(),
-                                'sku'=>$item->getLinkedProduct()->getSku(),
-                                'foreign_sku'=>$item->getLinkedProduct()->getForeignSku()
+                            'linked_product' => array(
+                                'id' => $item->getLinkedProduct()->getId(),
+                                'sku' => $item->getLinkedProduct()->getSku(),
+                                'foreign_sku' => $item->getLinkedProduct()->getForeignSku()
                             )
                         );
                     }
@@ -871,6 +906,8 @@ class DopigoOrder
             }
             //</editor-fold>
 
+            if (!$this->getCustomer()->dopigo_check_user_exists())
+                throw new Exception("İlgili Customer Henüz Oluşturulmamış Dopigo Tarafında Customer Olmaksızın Sipariş Oluşturulamaz");
 
             return (new dopigo())->createOrder(
                 $this->getId(),

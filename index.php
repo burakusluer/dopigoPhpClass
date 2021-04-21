@@ -1,8 +1,8 @@
 <?php
 include_once "dopigo.php";
-$dopigoAPI=new dopigo();
-$data_products=$dopigoAPI->getProducts();
-$data_orders=$dopigoAPI->getOrders();
+$dopigoAPI = new dopigo();
+//$data_products=$dopigoAPI->getProducts();
+//$data_orders=$dopigoAPI->getOrders();
 
 
 //<editor-fold desc="product">
@@ -27,8 +27,33 @@ $data_orders=$dopigoAPI->getOrders();
 //echo "</pre>";
 //</editor-fold>
 
-$parsedOrders=dopigo::dopigo_order_parser($data_orders->results);
-echo gettype($parsedOrders);
-echo "<pre>";
-print_r($parsedOrders);
-echo "</pre>";
+//<editor-fold desc="order">
+//$parsedOrders=dopigo::dopigo_order_parser($data_orders->results);
+//echo gettype($parsedOrders);
+//echo "<pre>";
+//print_r($parsedOrders);
+//echo "</pre>";
+//</editor-fold>
+
+//<editor-fold desc="samples">
+//echo "<pre>";
+//print_r((new dopigo())->checkCustomer((new DopigoCustomer(16854934))->getId()));//returns bu yolla yoklarsan raw result alırsın
+//echo "</pre>
+//";
+//echo "<br>";
+//
+//echo "<pre>";
+//print_r((new DopigoCustomer(16854934))->dopigo_check_user_exists());// boolean sonuç döndürür
+//
+//echo "<br>";
+//
+//
+//echo "<pre>";
+//print_r(gettype((new DopigoCustomer(168549347))->dopigo_check_user_exists()));// olumsuz sonuc
+//echo "</pre>";
+//
+//
+//</editor-fold>
+
+
+
