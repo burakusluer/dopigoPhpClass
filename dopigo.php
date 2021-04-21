@@ -83,7 +83,6 @@ class dopigo
         return $products_of_dopigo;
     }
 
-
     /**
      * @param $array_of_results array | null ilgili fonksiyondan dönen json verilerinin result'ı verilmelidir
      * varsayılan olarak 30 order değeri gelmektedir !!
@@ -91,9 +90,10 @@ class dopigo
      */
     public static function dopigo_order_parser($array_of_results)
     {
-        if (!isset($array_of_results) || empty($array_of_results))
+        if (!isset($array_of_results) || empty($array_of_results)):
+            echo "results boş olarak geldi";
             return null;
-
+        endif;
 
         $dopigo_orders = array();
         foreach ($array_of_results as $item) {
@@ -194,23 +194,56 @@ class dopigo
                     $dopigoNewProductItem->setProduct((isset($dopigoOrderItem->product) && !empty($dopigoOrderItem->product)) ? new DopigoOrderItemProduct(
                         (isset($dopigoOrderItem->product->id) && !empty($dopigoOrderItem->product->id)) ? $dopigoOrderItem->product : 0,
                         (isset($dopigoOrderItem->product->sku) && !empty($dopigoOrderItem->product->sku)) ? $dopigoOrderItem->product->sku : null,
-                        (isset($dopigoOrderItem->product->foreign_sku) && !empty($dopigoOrderItem->product->foreign_sku)) ? $dopigoOrderItem->product->foreign_sku : null):
+                        (isset($dopigoOrderItem->product->foreign_sku) && !empty($dopigoOrderItem->product->foreign_sku)) ? $dopigoOrderItem->product->foreign_sku : null) :
                         null);
                     //Dopigo Order Item Linked Product
                     $dopigoNewProductItem->setLinkedProduct((isset($dopigoOrderItem->linked_product) && !empty($dopigoOrderItem->linked_product)) ? new DopigoOrderItemLinkedProduct(
                         (isset($dopigoOrderItem->linked_product->id) && !empty($dopigoOrderItem->linked_product->id)) ? $dopigoOrderItem->linked_product : 0,
                         (isset($dopigoOrderItem->linked_product->sku) && !empty($dopigoOrderItem->linked_product->sku)) ? $dopigoOrderItem->linked_product->sku : null,
-                        (isset($dopigoOrderItem->linked_product->foreign_sku) && !empty($dopigoOrderItem->linked_product->foreign_sku)) ? $dopigoOrderItem->linked_product->foreign_sku : null):
+                        (isset($dopigoOrderItem->linked_product->foreign_sku) && !empty($dopigoOrderItem->linked_product->foreign_sku)) ? $dopigoOrderItem->linked_product->foreign_sku : null) :
                         null);
 
-                    $array_of_items[]=$dopigoNewProductItem;
+                    $array_of_items[] = $dopigoNewProductItem;
                 }
                 $dopigo_order->setItems($array_of_items);
 
+                //transactions
+                $array_of_transactions = array();
+                if (isset($item->transactions) && !empty($item->transactions) && count($item->transactions) > 0) {
+                    foreach ($item->transactions as $transaction) {
+                        $dopigoTransaction = new DopigoTransactions();
+                        $dopigoTransaction->setTransactionType(!empty($transaction->transaction_type) ? $transaction->transaction_type : "income");
+                        $dopigoTransaction->setPaymentType(!empty($transaction->payment_type) ? $transaction->payment_type : "undefined");
+                        $dopigoTransaction->setAdditionalDescription(!empty($transaction->additional_description) ? $transaction->additional_description : null);
+                        $dopigoTransaction->setPaidDate(!empty($transaction->paid_date) ? $transaction->paid_date : null);
+                        $dopigoTransaction->setPaymentDueDate(!empty($transaction->payment_due_date) ? $transaction->payment_due_date : null);
+                        $dopigoTransaction->setInvoiceNumber(!empty($transaction->invoice_number) ? $transaction->invoice_number : null);
+                        $dopigoTransaction->setInvoiceFile(!empty($transaction->invoice_file) ? $transaction->invoice_file : null);//bu tahminen byte array blob dönecek var ise
+                        $dopigoTransaction->setServiceDocumentUrl(!empty($transaction->service_document_url) ? $transaction->service_document_url : null);
+                        $dopigoTransaction->setTotal(!empty($transaction->total) ? $transaction->total : 0.00);
+                        $dopigoTransaction->setArchived(!empty($transaction->archived) ? $transaction->archived : false);
+                        $dopigoTransaction->setInstallmentCount(!empty($transaction->installment_count) ? $transaction->installment_count : null);
+                        $dopigoTransaction->setPosRefId(!empty($transaction->pos_ref_id) ? $transaction->pos_ref_id : null);
+                        $dopigoTransaction->setBankId(!empty($transaction->bank_id) ? $transaction->bank_id : null);
+                        $dopigoTransaction->setAccountId(!empty($transaction->account_id) ? $transaction->account_id : null);
+                        $array_of_transactions[] = $dopigoTransaction;
+                    }
+
+                }
+                $dopigo_order->setTransactions($array_of_transactions);
 
             }
+            $dopigo_order->setInvoiceNumber(!empty($item->invoice_number) ? $item->invoice_number : null);
+            $dopigo_order->setInvoiceCreated(!empty($item->invoice_created) ? $item->invoice_created : null);
+            $dopigo_order->setInvoiceType(!empty($item->invoice_type) ? $item->invoice_type : "");
+            $dopigo_order->setInvoiceVatTotal(!empty($item->invoice_vat_total) ? $item->invoice_vat_total : 0.00);
+            $dopigo_order->setInvoiceGrandTotal(!empty($item->invoice_grand_total) ? $item->invoice_grand_total : 0.00);
+            $dopigo_order->setInvoiceDeleted(!empty($item->invoice_deleted) ? $item->invoice_deleted : null);//fatura silinme tarihi
 
+
+            $dopigo_orders[] = $dopigo_order;
         }
+
 
         return $dopigo_orders;
     }
@@ -272,7 +305,7 @@ class dopigo
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $data = curl_exec($ch);
         curl_close($ch);
-        return json_decode($data)->results;
+        return json_decode($data);
     }
 
     /**

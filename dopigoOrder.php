@@ -813,13 +813,131 @@ class DopigoOrder
     }
 
     /**
-     * @param null | DateTime $invoice_deleted
+     * @param null | boolean $invoice_deleted
      */
     public function setInvoiceDeleted($invoice_deleted)
     {
         $this->_invoice_deleted = $invoice_deleted;
     }
+
     //</editor-fold>
+
+    /**
+     * @return array | null hata fırlatabilir id durumunu kontrol etmelisin
+     * 2.olarak da dopigoda customer'ın önceden oluşup oluşmadığı kontrol edilmelidir
+     */
+    public function push_order_to_dopigo()
+    {
+        if (isset($this->_id) && $this->getId() !== 0) {
+            include_once "dopigo.php";
+
+            //<editor-fold desc="order-items">
+            $casted_items = array();// casted to array
+            if (isset($this->_items) && count($this->getItems()) > 0) {
+
+                foreach ($this->getItems() as $item) {
+                    if (is_a($item, "DopigoOrderItem")) {
+                        $casted_items[]=array(
+                            'id'=>$item->getId(),
+                            'order'=>$item->getOrder(),
+                            'service_item_id'=>$item->getServiceItemId(),
+                            'service_product_id'=>$item->getServiceProductId(),
+                            'service_shipment_code'=>$item->getServiceShipmentCode(),
+                            'sku'=>$item->getSku(),
+                            'attributes'=>$item->getAtributes(),
+                            'name'=>$item->getName(),
+                            'amount'=>$item->getAmount(),
+                            'price'=>$item->getPrice(),
+                            'unit_price'=>$item->getUnitPrice(),
+                            'shipment'=>$item->getShipment(),
+                            'shipment_campaign_code'=>$item->getShipmentCampaignCode(),
+                            'buyer_pays_shipment'=>$item->isBuyerPaysShipment(),
+                            'status'=>$item->getStatus(),
+                            'shipment_provider'=>$item->getShipmnetProvider(),
+                            'tax_ratio'=>$item->getTaxRatio(),
+                            'product'=>array(
+                                'id'=>$item->getProduct()->getId(),
+                                'sku'=>$item->getProduct()->getSku(),
+                                'foreign_sku'=>$item->getProduct()->getForeignSku()
+                            ),
+                            'linked_product'=>array(
+                                'id'=>$item->getLinkedProduct()->getId(),
+                                'sku'=>$item->getLinkedProduct()->getSku(),
+                                'foreign_sku'=>$item->getLinkedProduct()->getForeignSku()
+                            )
+                        );
+                    }
+                }
+            }
+            //</editor-fold>
+
+
+            return (new dopigo())->createOrder(
+                $this->getId(),
+                $this->getService(),
+                $this->getServiceValue(),
+                array(
+                    'id' => $this->getCustomer()->getId(),
+                    'account_type' => $this->getCustomer()->getAccountType(),
+                    'full_name' => $this->getCustomer()->getFullName(),
+                    'address' => array(
+                        'id' => $this->getCustomer()->getAddress()->getId(),
+                        'full_address' => $this->getCustomer()->getAddress()->getFullAddress(),
+                        'contact_full_name' => $this->getCustomer()->getAddress()->getContactFullName(),
+                        'contact_phone_number' => $this->getCustomer()->getAddress()->getContactPhoneNumber(),
+                        'city' => $this->getCustomer()->getAddress()->getCity(),
+                        'district' => $this->getCustomer()->getAddress()->getDistrict(),
+                        'zip_code' => $this->getCustomer()->getAddress()->getZipCode()
+                    ),
+                    'email' => $this->getCustomer()->getEmail(),
+                    'phone_number' => $this->getCustomer()->getPhoneNumber(),
+                    'citizen_id' => $this->getCustomer()->getCitizenId(),
+                    'tax_id' => $this->getCustomer()->getTaxId(),
+                    'tax_office' => $this->getCustomer()->getTaxOffice(),
+                    'company_name' => $this->getCustomer()->getTaxOffice()
+                ),//customer şayet önceden dopigoda bulunmuyor ise önce oluşturulmalıdır
+                $this->getServiceName(),
+                $this->getSalesChannel(),
+                $this->getServiceCreated(),
+                $this->getServiceOrderId(),
+                $this->getProducts(),//string
+                array(
+                    'id' => $this->getBillingAddress()->getId(),
+                    'full_address' => $this->getBillingAddress()->getFullAddress(),
+                    'contact_full_name' => $this->getBillingAddress()->getContactFullName(),
+                    'contact_phone_number' => $this->getBillingAddress()->getContactPhoneNumber(),
+                    'city' => $this->getBillingAddress()->getCity(),
+                    'district' => $this->getBillingAddress()->getDistrict(),
+                    'zip_code' => $this->getBillingAddress()->getZipCode()
+                ),
+                array(
+                    'id' => $this->getShippingAddress()->getId(),
+                    'full_address' => $this->getShippingAddress()->getFullAddress(),
+                    'contact_full_name' => $this->getShippingAddress()->getContactFullName(),
+                    'contact_phone_number' => $this->getShippingAddress()->getContactPhoneNumber(),
+                    'city' => $this->getShippingAddress()->getCity(),
+                    'district' => $this->getShippingAddress()->getDistrict(),
+                    'zip_code' => $this->getShippingAddress()->getZipCode()
+                ),
+                $this->getShippedDate(),
+                $this->getPaymentType(),
+                $this->getStatus(),
+                $this->getTotal(),
+                $this->getServiceFee(),
+                $this->getDiscount(),
+                $this->getArchived(),
+                $this->getNotes(),
+                $casted_items,
+                $this->getInvoiceNumber(),
+                $this->getInvoiceCreated(),
+                $this->getInvoiceType(),
+                $this->getInvoiceVatTotal(),
+                $this->getInvoiceGrandTotal(),
+                $this->getInvoiceDeleted()
+            );
+        }
+        throw new \http\Exception\InvalidArgumentException("Order id değeri önceden verilmelidir.");
+    }
 
 
     /**
@@ -1594,6 +1712,7 @@ class DopigoOrderItemProduct
         $this->_foreign_sku = $_foreign_sku;
     }
 }
+
 class DopigoOrderItemLinkedProduct extends DopigoOrderItemProduct
 {
 
